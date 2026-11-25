@@ -108,7 +108,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
       <p>China lets ordinary passport holders from 48 countries enter visa-free for up to 30 days. The list includes the UK, most of Europe, Australia, New Zealand, Canada, Japan and South Korea.</p>
       <div class="notice">This arrangement is confirmed only until <b>31 December 2026</b>. An extension into 2027 has not been announced yet. The wedding is on 2 January.</div>
       <p><b>What we suggest:</b> file a visa application now at <a href="https://www.visaforchina.cn/" target="_blank" rel="noopener">visaforchina.cn</a>. Filing is free. If visa-free entry is renewed you can ignore it. If it is not, you visit the visa centre and pay the fee, with most of the work already done.</p>
-      <p>If you enter mainland China on or before 31 December, your stay is covered by the current rules. That does not work if you are joining us in Hong Kong that evening.</p>
+      <p>If you enter mainland China on or before 31 December, your stay is covered by the current rules.<span id="boatVisaNote" class="hide"> That does not work if you are joining the boat party in Hong Kong that evening.</span></p>
       <h3>Other passports</h3>
       <p>If your passport is not on the visa-free list (we understand this includes US passports), you need a visa. Please apply as early as you can.</p>
       <h3>The 240-hour transit rule</h3>
@@ -193,7 +193,7 @@ $('logout').addEventListener('click', () => { ['w_site','w_name','w_code'].forEa
 const TABS = [['day','Your schedule'],['reply','Your reply'],['bus','The bus'],['travel','Visa and travel']];
 function openApp(){
   $('tabs').innerHTML = TABS.map(([k,l]) => `<button type="button" role="tab" data-k="${k}">${l}</button>`).join('');
-  drawReply($('t-reply'), S.members, saveGuest, false); drawDay(); drawBus(); tab('day'); show('app');
+  drawReply($('t-reply'), S.members, saveGuest, false); drawDay(); drawBus(); $('boatVisaNote').classList.toggle('hide', !S.members.some(m => m.boat)); tab('day'); show('app');
 }
 function tab(k){ TABS.forEach(([x]) => $('t-' + x).classList.toggle('hide', x !== k)); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); }
 document.addEventListener('click', e => { const g = e.target.closest('[data-goto]'); if (g){ tab(g.dataset.goto); window.scrollTo(0, 0); } });
@@ -304,7 +304,7 @@ function drawBus(){
   $('t-bus').innerHTML = `<div class="card"><span class="tag plain">${esc(c.bus_date)} only</span><h2>Free coach for the banquet</h2><p>The coach runs <b>on ${esc(c.bus_date)} only</b>, once in each direction. There is no coach on any other day. Tell us on the reply tab whether you want a seat.</p>
     <ul class="tl"><li><time>${esc(c.bus_up_time)}</time><div><b>Hong Kong to Shenzhen</b><span class="muted">Pick-up at ${esc(c.bus_stop_adm)} or ${esc(c.bus_stop_kt)}. Arrives at the hotel before the banquet.</span></div></li>
     <li><time>${esc(c.bus_back_time)}</time><div><b>Shenzhen to Hong Kong</b><span class="muted">From the hotel, dropping at Kowloon Tong and Admiralty. About an hour to Admiralty.</span></div></li></ul>
-    <div class="notice"><b>The coach does not arrive in time for the ${esc(c.ceremony_time)} ceremony.</b> Ceremony guests travel up on their own.</div>
+    ${S.members.some(m => m.ceremony) ? `<div class="notice"><b>The coach does not arrive in time for the ${esc(c.ceremony_time)} ceremony.</b> If you are joining the ceremony, please travel up on your own.</div>` : ''}
     <h3>At the border</h3><div class="note"><b>The crossing is easy and takes around 10 minutes.</b> The coach stops at Huanggang Port, you walk through immigration, and the <b>same coach is waiting for you on the other side</b>.</div><p>Take your bags with you through the crossing. Bring the same documents you would need to enter mainland China on your own: see the visa and travel tab.</p>
     <p class="muted small">Exact times and pick-up instructions will be confirmed closer to the day.</p></div>`;
 }
