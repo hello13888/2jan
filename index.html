@@ -98,8 +98,8 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 
 <div class="wrap hide" id="v-app">
   <div class="tabs" id="tabs" role="tablist"></div>
-  <div id="t-reply"></div>
-  <div id="t-day" class="hide"></div>
+  <div id="t-day"></div>
+  <div id="t-reply" class="hide"></div>
   <div id="t-bus" class="hide"></div>
   <div id="t-travel" class="hide">
     <div class="card"><h2>Do I need a visa for mainland China?</h2>
@@ -149,7 +149,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 
 <script>
 /* ============ SETTINGS: paste your Apps Script web app URL between the quotes ============ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwmHCjIKdegk4e2lDopY3n9VliO8tTW-W-2iA_RzmSGGb1PqD8gUbptuVxBCtrbN0eOew/exec';
+const API_URL = '';
 /* ======================================================================================= */
 
 const $ = id => document.getElementById(id);
@@ -190,21 +190,23 @@ async function login(name, code){
 $('logout').addEventListener('click', () => { ['w_site','w_name','w_code'].forEach(store.del); location.hash = ''; location.reload(); });
 
 /* ---------- guest app ---------- */
-const TABS = [['reply','Your reply'],['day','Your schedule'],['bus','The bus'],['travel','Visa and travel']];
+const TABS = [['day','Your schedule'],['reply','Your reply'],['bus','The bus'],['travel','Visa and travel']];
 function openApp(){
   $('tabs').innerHTML = TABS.map(([k,l]) => `<button type="button" role="tab" data-k="${k}">${l}</button>`).join('');
-  drawReply($('t-reply'), S.members, saveGuest, false); drawDay(); drawBus(); tab('reply'); show('app');
+  drawReply($('t-reply'), S.members, saveGuest, false); drawDay(); drawBus(); tab('day'); show('app');
 }
 function tab(k){ TABS.forEach(([x]) => $('t-' + x).classList.toggle('hide', x !== k)); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); }
+document.addEventListener('click', e => { const g = e.target.closest('[data-goto]'); if (g){ tab(g.dataset.goto); window.scrollTo(0, 0); } });
 $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ tab(b.dataset.k); window.scrollTo(0, 0); } });
 
+const hotelLink = () => /^https:\/\//.test(S.cfg.hotel2_link || '') ? ` <a href="${esc(S.cfg.hotel2_link)}" target="_blank" rel="noopener">See the hotel on Trip.com</a>` : '';
 const hasEarlyStay = m => m.stays.some(s => !/^2 Jan/.test(s.check_in));
 const radios = (name, opts, val) => `<div class="opts">` + opts.map(([v,l]) => `<label><input type="radio" name="${name}" value="${esc(v)}" ${val === v ? 'checked' : ''}>${esc(l)}</label>`).join('') + `</div>`;
 
 function drawReply(root, members, onSave, isAdmin){
   const c = S.cfg, first = members[0], anyAnswered = members.some(m => m.answers && m.answers.updated_at);
   let h = `<div class="card"><h2>${isAdmin ? 'Answering for ' + esc(members.map(m => m.name).join(', ')) : 'Hello ' + esc(members.map(m => m.name.split(' ')[0]).join(' and '))}</h2>
-    <p>${members.length > 1 ? 'This page covers everyone in your group. One of you can answer for all.' : 'Here is everything we need from you.'} Please reply by <b>${esc(c.deadline)}</b>. You can come back and change your answers until then.</p>
+    <p>${members.length > 1 ? 'This form covers everyone in your group. One of you can answer for all.' : 'Here is everything we need from you.'} Please reply by <b>${esc(c.deadline)}</b>. You can come back and change your answers until then.</p>${isAdmin ? '' : '<p class="muted small">Not sure about timings? Check the schedule tab first.</p>'}
     ${anyAnswered ? '<span class="tag done">Reply received</span>' : '<span class="tag">Reply needed</span>'}</div>`;
   members.forEach(m => {
     const a = m.answers || {}, id = m.id;
@@ -219,17 +221,17 @@ function drawReply(root, members, onSave, isAdmin){
     if (m.stays.length) {
       const self = m.stays.map(s => s.self_fund_nights).filter(Boolean).join(', ');
       h += `<div class="q"><h3>Your hotel room</h3><p>We have reserved a room for you. Please check the details.</p>` + m.stays.map(s => `<dl class="kv"><dt>Hotel</dt><dd>${esc(/SAVHE/.test(s.hotel) ? c.hotel2_name : c.venue_name)}</dd><dt>Check in</dt><dd>${esc(s.check_in)}</dd><dt>Check out</dt><dd>${esc(s.check_out)} (${esc(s.nights)} night${s.nights == 1 ? '' : 's'})</dd><dt>Room</dt><dd>${esc(s.room_type)}</dd><dt>Sharing with</dt><dd>${esc(s.sharing_with || 'Nobody, the room is yours')}</dd>${s.self_fund_nights ? `<dt>At your cost</dt><dd>Night${/,/.test(s.self_fund_nights) ? 's' : ''} of ${esc(s.self_fund_nights)}</dd>` : ''}</dl>`).join('<hr style="border:0;border-top:1px dashed var(--line)">') +
-        (m.stays.some(s => /SAVHE/.test(s.hotel)) ? `<p class="muted small">${esc(c.hotel2_address)}. ${esc(c.hotel2_checkin)}</p>` : '') +
+        (m.stays.some(s => /SAVHE/.test(s.hotel)) ? `<p class="muted small">${esc(c.hotel2_address)}. ${esc(c.hotel2_checkin)}${hotelLink()}</p>` : '') +
         `<p><b>Is this right, and do you still want the room?</b></p>${radios('room_' + id, [['keep','Yes, keep my room'],['release','No, I do not need it']], a.room)}
         <div data-show="room" class="${a.room === 'keep' ? '' : 'hide'}">
           <label class="f" for="legal_${id}">Full legal name, exactly as on the ID or passport you will travel with</label><input type="text" id="legal_${id}" value="${esc(a.legal_name)}" autocomplete="off"><p class="muted small">The hotel needs this to check you in.</p>
           ${self ? `<div class="note">The night${/,/.test(self) ? 's' : ''} of <b>${esc(self)}</b> ${/,/.test(self) ? 'are' : 'is'} at your own cost. We will confirm the amount and how to settle it later.</div><div class="opts"><label><input type="checkbox" id="self_${id}" ${a.self_fund_ok === 'yes' ? 'checked' : ''}>I am happy to cover ${/,/.test(self) ? 'those nights' : 'that night'}</label></div>` : ''}
         </div></div>`;
     }
-    h += `<div class="q"><h3>Bus between Hong Kong and Shenzhen</h3><p class="muted small">Free coach for the banquet. Details are on the bus tab.</p>
-      <div data-bus="up"><p><b>Bus up to Shenzhen</b>, leaving ${esc(c.bus_up_time)}</p>${radios('bus_up_' + id, [['none','No thanks'],['Kowloon Tong','From Kowloon Tong'],['Admiralty','From Admiralty']], a.bus_up)}</div>
+    h += `<div class="q" data-busblock><span class="tag plain">${esc(c.bus_date)} only</span><h3>Coach between Hong Kong and Shenzhen</h3><p>A free coach runs on the wedding day only, <b>${esc(c.bus_date)}</b>: up to Shenzhen before the banquet, and back to Hong Kong that night. Full details are on the bus tab.</p>
+      <div data-bus="up"><p><b>Coach up to Shenzhen on 2 January</b>, leaving Hong Kong ${esc(c.bus_up_time)}</p>${radios('bus_up_' + id, [['none','No thanks'],['Kowloon Tong','From Kowloon Tong'],['Admiralty','From Admiralty']], a.bus_up)}</div>
       <p data-busnote="up" class="muted hide"></p>
-      <div data-bus="back" style="margin-top:12px"><p><b>Bus back to Hong Kong</b>, leaving ${esc(c.bus_back_time)}</p>${radios('bus_back_' + id, [['none','No thanks'],['Kowloon Tong','To Kowloon Tong'],['Admiralty','To Admiralty']], a.bus_back)}</div>
+      <div data-bus="back" style="margin-top:12px"><p><b>Coach back to Hong Kong on 2 January</b>, leaving the hotel ${esc(c.bus_back_time)}</p>${radios('bus_back_' + id, [['none','No thanks'],['Kowloon Tong','To Kowloon Tong'],['Admiralty','To Admiralty']], a.bus_back)}</div>
       <p data-busnote="back" class="muted hide"></p></div></div>`;
   });
   h += `<div class="card"><label class="f" for="unitNote" style="margin-top:0">Anything else we should know? (optional)</label><textarea id="unitNote">${esc((first.answers || {}).note)}</textarea>
@@ -242,10 +244,12 @@ function drawReply(root, members, onSave, isAdmin){
       const m = members.find(x => x.id === card.dataset.person), room = val(card, 'room'), cer = val(card, 'ceremony');
       const b = card.querySelector('[data-show="boat"]'); if (b) b.classList.toggle('hide', val(card, 'boat') !== 'yes');
       const r = card.querySelector('[data-show="room"]'); if (r) r.classList.toggle('hide', room !== 'keep');
-      const keep = m.stays.length && room === 'keep';
-      const upOff = cer === 'yes' ? 'You are joining the ceremony, so the bus up is too late for you. Please make your own way.' : (keep && hasEarlyStay(m)) ? 'You are already in Shenzhen the night before, so no bus up is needed.' : '';
-      const backOff = keep ? 'You are staying the night of the wedding, so no bus back is needed.' : '';
-      [['up', upOff], ['back', backOff]].forEach(([k, off]) => { card.querySelector(`[data-bus="${k}"]`).classList.toggle('hide', !!off); const n = card.querySelector(`[data-busnote="${k}"]`); n.textContent = off; n.classList.toggle('hide', !off); });
+      // Guests with a room are treated as staying unless they release it, so they are never asked about a bus they do not need.
+      const staying = m.stays.length && room !== 'release';
+      const upOff = (staying && hasEarlyStay(m)) ? ' ' : cer === 'yes' ? 'You are joining the ceremony, so the coach up is too late for you. Please make your own way.' : '';
+      const backOff = staying ? ' ' : '';
+      [['up', upOff], ['back', backOff]].forEach(([k, off]) => { card.querySelector(`[data-bus="${k}"]`).classList.toggle('hide', !!off); const n = card.querySelector(`[data-busnote="${k}"]`); n.textContent = off.trim(); n.classList.toggle('hide', !off.trim()); });
+      card.querySelector('[data-busblock]').classList.toggle('hide', !!upOff && !!backOff);
     });
   }
   root.addEventListener('change', sync); sync();
@@ -280,23 +284,28 @@ function drawDay(){
   const c = S.cfg, ms = S.members, who = f => { const n = ms.filter(f).map(m => m.name.split(' ')[0]); return n.length === ms.length || !n.length ? '' : ` <span class="muted small">(${esc(n.join(', '))})</span>`; };
   const item = (t, title, body) => `<li><time>${esc(t)}</time><div><b>${title}</b>${body}</div></li>`;
   const ansNote = (k, m) => { const a = (m.answers || {})[k]; return a === 'yes' ? 'coming' : a === 'no' ? 'not coming' : 'reply needed'; };
-  let h = '';
+  const done = ms.every(m => m.answers && m.answers.updated_at);
+  let h = `<div class="card"><h2>Hello ${esc(ms.map(m => m.name.split(' ')[0]).join(' and '))}</h2><p>This is your personal schedule. Have a read, then send us your reply so we can plan seats, rooms and the coach.</p>
+    <div class="bar">${done ? '<span class="tag done">Reply received</span>' : `<span class="tag">Reply needed by ${esc(c.deadline)}</span>`}<button class="btn" type="button" data-goto="reply">${done ? 'Change my reply' : 'Reply now'}</button></div></div>`;
   if (ms.some(m => m.boat)) h += `<div class="card"><span class="tag plain">${esc(c.boat_date)}</span><h2>New Year's Eve in Hong Kong</h2><ul class="tl">${item(c.boat_time, 'Boat party, Victoria Harbour' + who(m => m.boat), `<span class="muted">Pier: ${esc(c.boat_pier)}. ${esc(ms.filter(m => m.boat).map(m => m.name.split(' ')[0] + ': ' + ansNote('boat', m)).join(' · '))}</span>`)}</ul></div>`;
   h += `<div class="card"><span class="tag plain">${esc(c.wedding_date)}</span><h2>The wedding day</h2><p>${esc(c.venue_name)}<br><span class="muted">${esc(c.venue_address)}</span></p><ul class="tl">` +
     (ms.some(m => m.ceremony) ? item(c.ceremony_time, 'Ceremony' + who(m => m.ceremony), `<span class="muted">${esc(c.ceremony_place)}. Make your own way, no shuttle arrives in time. ${esc(ms.filter(m => m.ceremony).map(m => m.name.split(' ')[0] + ': ' + ansNote('ceremony', m)).join(' · '))}</span>`) : '') +
     item(c.reception_time, 'Reception', `<span class="muted">${esc(c.banquet_place)}</span>`) + item(c.banquet_time, 'Wedding banquet', `<span class="muted">${esc(c.banquet_place)}</span>`) +
-    item(c.afterparty_time, 'After party', `<span class="muted">${esc(c.afterparty_place)}</span>`) + item('11:00 pm', 'After-after party', `<span class="muted">Details to follow</span>`) + `</ul></div>`;
+    item(c.afterparty_time, 'After party', `<span class="muted">${esc(c.afterparty_place)}</span>`) + `</ul></div>`;
   const stays = ms.filter(m => m.stays.length && (m.answers || {}).room !== 'release');
-  if (stays.length) h += `<div class="card"><h2>Where you are staying</h2>` + stays.map(m => m.stays.map(s => `<p><b>${esc(m.name)}</b>: ${esc(/SAVHE/.test(s.hotel) ? c.hotel2_name : c.venue_name)}, ${esc(s.check_in)} to ${esc(s.check_out)}</p>`).join('')).join('') + `</div>`;
+  if (stays.length) h += `<div class="card"><h2>Where you are staying</h2>` + stays.map(m => m.stays.map(s => `<p><b>${esc(m.name)}</b>: ${esc(/SAVHE/.test(s.hotel) ? c.hotel2_name : c.venue_name)}, ${esc(s.check_in)} to ${esc(s.check_out)}${s.sharing_with ? ', sharing with ' + esc(s.sharing_with) : ''}</p>`).join('')).join('') + (stays.some(m => m.stays.some(s => /SAVHE/.test(s.hotel))) ? `<p class="muted small">${esc(c.hotel2_address)}. ${esc(c.hotel2_checkin)}${hotelLink()}</p>` : '') + `<p class="muted small">Please confirm your room in your reply.</p></div>`;
+  const noRoom = ms.filter(m => !m.stays.length || (m.answers || {}).room === 'release');
+  if (noRoom.length) h += `<div class="card"><span class="tag plain">${esc(c.bus_date)} only</span><h2>Getting there and back</h2><p>A free coach runs from Hong Kong to the hotel before the banquet (${esc(c.bus_up_time)}) and back that night (${esc(c.bus_back_time)}). ${ms.some(m => m.ceremony) ? 'It does not arrive in time for the ceremony. ' : ''}Tell us in your reply if you want a seat.</p><button class="btn ghost sm" type="button" data-goto="bus">Coach details</button></div>`;
+  h += `<div class="card" style="text-align:center"><p>${done ? 'Thank you, we have your reply. You can change it until ' + esc(c.deadline) + '.' : 'Ready? It takes about two minutes.'}</p><button class="btn" type="button" data-goto="reply">${done ? 'Change my reply' : 'Reply now'}</button></div>`;
   $('t-day').innerHTML = h;
 }
 function drawBus(){
   const c = S.cfg;
-  $('t-bus').innerHTML = `<div class="card"><h2>Free coach for the banquet</h2><p>We are running coaches between Hong Kong and the hotel on the wedding day. Tell us on the reply tab whether you want a seat.</p>
-    <ul class="tl"><li><time>${esc(c.bus_up_time)}</time><div><b>Hong Kong to Shenzhen</b><span class="muted">Pick-up at ${esc(c.bus_stop_adm)} or ${esc(c.bus_stop_kt)}. Arrives in time for the reception.</span></div></li>
+  $('t-bus').innerHTML = `<div class="card"><span class="tag plain">${esc(c.bus_date)} only</span><h2>Free coach for the banquet</h2><p>The coach runs <b>on ${esc(c.bus_date)} only</b>, once in each direction. There is no coach on any other day. Tell us on the reply tab whether you want a seat.</p>
+    <ul class="tl"><li><time>${esc(c.bus_up_time)}</time><div><b>Hong Kong to Shenzhen</b><span class="muted">Pick-up at ${esc(c.bus_stop_adm)} or ${esc(c.bus_stop_kt)}. Arrives at the hotel before the banquet.</span></div></li>
     <li><time>${esc(c.bus_back_time)}</time><div><b>Shenzhen to Hong Kong</b><span class="muted">From the hotel, dropping at Kowloon Tong and Admiralty. About an hour to Admiralty.</span></div></li></ul>
     <div class="notice"><b>The coach does not arrive in time for the ${esc(c.ceremony_time)} ceremony.</b> Ceremony guests travel up on their own.</div>
-    <h3>At the border</h3><p>Both directions cross at Huanggang Port. Everyone gets off with their belongings, clears immigration, and reboards. Bring the same documents you would need to enter mainland China on your own. See the visa and travel tab.</p>
+    <h3>At the border</h3><div class="note"><b>The crossing is easy and takes around 10 minutes.</b> The coach stops at Huanggang Port, you walk through immigration, and the <b>same coach is waiting for you on the other side</b>.</div><p>Take your bags with you through the crossing. Bring the same documents you would need to enter mainland China on your own: see the visa and travel tab.</p>
     <p class="muted small">Exact times and pick-up instructions will be confirmed closer to the day.</p></div>`;
 }
 
@@ -376,7 +385,7 @@ async function start(){
 addEventListener('hashchange', start);
 
 /* ---------- preview data (only used while API_URL is empty; delete freely) ---------- */
-const demoDB = { cfg: { site_password:'demo', admin_password:'admin', site_url:'', couple:'Sam & Alex', deadline:'1 December 2026', locked:'no', wedding_date:'Saturday 2 January 2027', venue_name:'The Example Hotel', venue_address:'1 Sample Road, Shenzhen', ceremony_time:'3:30 pm', ceremony_place:'Garden Pavilion', reception_time:'5:30 pm', banquet_time:'6:00 pm', banquet_place:'Ballroom', afterparty_time:'8:30 pm to 11:00 pm', afterparty_place:'Garden Pavilion', hotel2_name:'Second Example Hotel', hotel2_address:'9 Sample Avenue. Metro: Sample', hotel2_checkin:'Check-in from 3 pm, check-out 12 noon.', boat_date:'Thursday 31 December 2026', boat_time:'9:00 pm', boat_pier:'to be confirmed', bus_up_time:'around 3:45 pm', bus_back_time:'around 9:15 to 9:30 pm', bus_stop_adm:'Admiralty MTR, Exit A', bus_stop_kt:'Kowloon Tong MTR station', invite_message:'Hi {names}! Our wedding guest site is live: {url}\nSite password: {site_password}\nYour name on the site: {login_names}\nYour personal code: {code}\nIt shows your own schedule and asks you to {asks}. Please reply by {deadline}.\nLooking forward to having you with us!' },
+const demoDB = { cfg: { site_password:'demo', admin_password:'admin', site_url:'', couple:'Sam & Alex', deadline:'1 December 2026', locked:'no', wedding_date:'Saturday 2 January 2027', venue_name:'The Example Hotel', venue_address:'1 Sample Road, Shenzhen', ceremony_time:'3:30 pm', ceremony_place:'Garden Pavilion', reception_time:'5:00 pm', banquet_time:'6:00 pm', banquet_place:'Ballroom', afterparty_time:'8:30 pm to 11:30 pm', afterparty_place:'Garden Pavilion', hotel2_name:'Second Example Hotel', hotel2_address:'9 Sample Avenue. Metro: Sample', hotel2_checkin:'Check-in from 3 pm, check-out 12 noon.', hotel2_link:'https://example.com/', bus_date:'Saturday 2 January 2027', boat_date:'Thursday 31 December 2026', boat_time:'9:00 pm', boat_pier:'to be confirmed', bus_up_time:'around 3:45 pm', bus_back_time:'around 9:15 to 9:30 pm', bus_stop_adm:'Admiralty MTR, Exit A', bus_stop_kt:'Kowloon Tong MTR station', invite_message:'Hi {names}! Our wedding guest site is live: {url}\nSite password: {site_password}\nYour name on the site: {login_names}\nYour personal code: {code}\nIt shows your own schedule and asks you to {asks}. Please reply by {deadline}.\nLooking forward to having you with us!' },
   units: [
     { unit:'U001', code:'DEMO01', group:'University friends', via:'', members:[
       { id:'P1', name:'Robin Vale', boat:true, ceremony:true, stays:[{ hotel:'SAVHE', check_in:'1 Jan 2027', check_out:'3 Jan 2027', nights:2, room_type:'Double', sharing_with:'Jamie Vale', self_fund_nights:'1 Jan' }], answers:null },
