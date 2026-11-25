@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wedding Guest Site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one calm column, like a printed invitation suite. Jade paper, ink green, a vermilion seal for anything that needs an answer. Single light theme by choice. */
+:root{
+  color-scheme:light;
+  --paper:#f2f5f1; --card:#ffffff; --ink:#1d2b26; --muted:#5f6f69; --line:#d5ddd8;
+  --jade:#2f5d50; --jade-soft:#e3ece8; --seal:#b3352b; --seal-soft:#f8e7e4; --gold:#a8873f; --ok:#256b45; --ok-soft:#e1f1e7;
+  --display:"Cormorant Garamond","Songti TC","Noto Serif TC",Georgia,serif;
+  --body:"Figtree","PingFang HK","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.55 var(--body)}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 60px}
+.wide{max-width:1180px}
+header.top{text-align:center;padding:34px 18px 10px}
+header.top .rule{width:56px;height:2px;background:var(--gold);margin:12px auto}
+h1{font:600 38px/1.1 var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font:600 26px/1.2 var(--display);margin:0 0 8px;text-wrap:balance}
+h3{font:600 16px/1.3 var(--body);margin:18px 0 6px}
+p{margin:0 0 10px} .muted{color:var(--muted)} .small{font-size:14px}
+a{color:var(--jade)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:14px 0}
+.card.person{border-top:4px solid var(--jade)}
+label.f{display:block;font-weight:600;margin:12px 0 4px}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:1px solid #b9c5bf;border-radius:8px;padding:11px 12px}
+textarea{min-height:70px;resize:vertical}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--jade);color:#fff;border:0;border-radius:8px;padding:12px 20px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--jade);border:1px solid var(--jade)}
+.btn.sm{padding:6px 12px;font-size:14px}
+.btn:disabled{opacity:.55;cursor:wait}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.err{color:var(--seal);font-weight:600;margin-top:10px;min-height:1.4em}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin:8px 0 4px;position:sticky;top:0;background:var(--paper);z-index:3}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:12px 12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.tabs button.on{color:var(--jade);border-color:var(--jade)}
+.q{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+.q h3{margin-top:0}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--seal);background:var(--seal-soft);border-radius:99px;padding:2px 10px;margin-bottom:6px}
+.tag.done{color:var(--ok);background:var(--ok-soft)} .tag.plain{color:var(--jade);background:var(--jade-soft)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.opts label{display:flex;align-items:center;gap:8px;border:1px solid #b9c5bf;border-radius:8px;padding:9px 14px;cursor:pointer;background:#fff}
+.opts label:has(input:checked){border-color:var(--jade);background:var(--jade-soft);font-weight:600}
+.opts input{accent-color:var(--jade);width:17px;height:17px;margin:0}
+.notice{background:var(--seal-soft);border-left:4px solid var(--seal);border-radius:6px;padding:10px 14px;margin:8px 0}
+.note{background:var(--jade-soft);border-left:4px solid var(--jade);border-radius:6px;padding:10px 14px;margin:8px 0}
+dl.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;margin:8px 0} dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:500}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:118px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.tl li:first-child{border-top:0}
+.tl time{font:600 20px/1.2 var(--display);color:var(--jade)}
+.tl b{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.saved{background:var(--ok-soft);border:1px solid var(--ok);color:var(--ok);border-radius:8px;padding:12px 14px;font-weight:600;margin:12px 0}
+.hide{display:none!important}
+ul{padding-left:20px;margin:0 0 10px} li{margin:3px 0}
+/* admin */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.tile b{display:block;font:600 28px/1.1 var(--display)} .tile span{font-size:13px;color:var(--muted)}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:14px;color:var(--ink)}
+.chips button.on{background:var(--jade);border-color:var(--jade);color:#fff}
+.demo{background:#fff7d6;border-bottom:1px solid #e3cf7a;padding:8px 14px;font-size:14px;text-align:center}
+@media (max-width:480px){h1{font-size:30px}.tl li{grid-template-columns:1fr;gap:2px}dl.kv{grid-template-columns:1fr}dl.kv dt{margin-top:6px}}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .2s}}
+</style>
+</head>
+<body>
+<div id="demoBar" class="demo hide"></div>
+<header class="top"><h1 id="title">Welcome</h1><div class="rule"></div><p class="muted" id="subtitle">Guest information and replies</p></header>
+
+<div class="wrap" id="v-gate">
+  <form class="card" id="gateForm"><h2>Enter the site password</h2><p class="muted">It is in the message we sent you.</p>
+    <label class="f" for="sitePw">Site password</label><input type="text" id="sitePw" autocomplete="off" autocapitalize="none">
+    <div class="err" id="gateErr" role="alert"></div><button class="btn" id="gateBtn">Continue</button></form>
+</div>
+
+<div class="wrap hide" id="v-login">
+  <form class="card" id="loginForm"><h2>Find your invitation</h2><p class="muted">Type your name exactly as it appears in our message, then your personal code. One of you can reply for everyone in your group.</p>
+    <label class="f" for="gName">Your name</label><input type="text" id="gName" autocomplete="off">
+    <label class="f" for="gCode">Personal code</label><input type="text" id="gCode" autocomplete="off" autocapitalize="characters">
+    <div class="err" id="loginErr" role="alert"></div><button class="btn" id="loginBtn">Open my page</button></form>
+</div>
+
+<div class="wrap hide" id="v-app">
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="t-reply"></div>
+  <div id="t-day" class="hide"></div>
+  <div id="t-bus" class="hide"></div>
+  <div id="t-travel" class="hide">
+    <div class="card"><h2>Do I need a visa for mainland China?</h2>
+      <p class="muted small">Checked 25 November 2026. Rules can change, so please confirm for your own passport.</p>
+      <h3>Passports with 30-day visa-free entry</h3>
+      <p>China lets ordinary passport holders from 48 countries enter visa-free for up to 30 days. The list includes the UK, most of Europe, Australia, New Zealand, Canada, Japan and South Korea.</p>
+      <div class="notice">This arrangement is confirmed only until <b>31 December 2026</b>. An extension into 2027 has not been announced yet. The wedding is on 2 January.</div>
+      <p><b>What we suggest:</b> file a visa application now at <a href="https://www.visaforchina.cn/" target="_blank" rel="noopener">visaforchina.cn</a>. Filing is free. If visa-free entry is renewed you can ignore it. If it is not, you visit the visa centre and pay the fee, with most of the work already done.</p>
+      <p>If you enter mainland China on or before 31 December, your stay is covered by the current rules. That does not work if you are joining us in Hong Kong that evening.</p>
+      <h3>Other passports</h3>
+      <p>If your passport is not on the visa-free list (we understand this includes US passports), you need a visa. Please apply as early as you can.</p>
+      <h3>The 240-hour transit rule</h3>
+      <p>China also allows 55 nationalities, including the US and UK, to stay up to 10 days without a visa when in transit. It needs a confirmed onward ticket from the mainland to a different country or region than the one you arrived from.</p>
+      <p><b>It does not cover Hong Kong → Shenzhen → Hong Kong</b>, which is what most guests will do. It can work if you leave the mainland to somewhere else, for example flying home directly from Shenzhen or Guangzhou. Check the entry port rules before relying on it.</p>
+    </div>
+    <div class="card"><h2>Hong Kong residents</h2>
+      <ul><li><b>Chinese-national permanent residents:</b> bring your Home Return Permit 回鄉證 and your HKID. New permits and renewals go through China Travel Service, take about 12 working days and cost HK$390.</li>
+      <li><b>Non-Chinese permanent residents:</b> you can use the Mainland Travel Permit for Hong Kong and Macao Residents (Non-Chinese Citizens), also issued through China Travel Service. Without it, follow the rules for your passport above.</li>
+      <li><b>Other Hong Kong residents:</b> follow the rules for your passport.</li></ul>
+      <p>Whatever you hold, check it is valid on 2 January.</p></div>
+    <div class="card"><h2>Crossing the border yourself</h2>
+      <p>The hotel is about 10 minutes by taxi from the border.</p>
+      <ul><li><b>MTR:</b> East Rail Line to Lok Ma Chau, cross at Futian Port.</li><li><b>Bus:</b> cross-border coaches run to Huanggang Port, which reopened in a new building in October 2026 and is open 24 hours.</li><li><b>High speed rail:</b> Hong Kong West Kowloon to Shenzhen Futian, about 15 minutes.</li><li><b>Flying:</b> the nearest airports are Shenzhen Bao'an and Hong Kong International.</li></ul></div>
+    <div class="card"><h2>Phone, internet and apps</h2>
+      <p>WhatsApp, Instagram, YouTube and Google do not work on mainland Wi-Fi or local SIMs. An international eSIM with roaming data gets around this. On hotel Wi-Fi the blocks still apply.</p>
+      <p>One option: a 45 GB data-only eSIM for mainland China and Hong Kong, about £20, from <a href="https://www.cuniq.com/#/pages/travelInternet/detail?goodsId=11238690" target="_blank" rel="noopener">CUniq</a>.</p>
+      <h3>Install before you arrive</h3>
+      <ul><li><b>Amap 高德地图:</b> maps, and you can call a taxi in it</li><li><b>Alipay or WeChat 微信:</b> China is close to cashless. Both accept foreign bank cards.</li><li><b>Didi:</b> taxis, which are cheap</li><li><b>Dianping or Meituan:</b> restaurants, massages, KTV and other things to do</li></ul>
+      <p>The Shenzhen Metro takes Alipay once it is set up.</p></div>
+  </div>
+  <p class="muted small" style="text-align:center;margin-top:24px"><button class="btn ghost sm" id="logout">Log out</button></p>
+</div>
+
+<div class="wrap wide hide" id="v-admin">
+  <form class="card" id="adminForm" style="max-width:480px;margin:14px auto"><h2>Organiser login</h2>
+    <label class="f" for="adminPw">Admin password</label><input type="password" id="adminPw" autocomplete="off">
+    <div class="err" id="adminErr" role="alert"></div><button class="btn" id="adminBtn">Open</button></form>
+  <div id="adminBody" class="hide">
+    <div class="bar"><h2>Replies</h2><button class="btn ghost sm" id="adminRefresh">Refresh</button></div>
+    <div class="tiles" id="aTiles"></div>
+    <div class="bar" style="margin:10px 0"><div class="chips" id="aChips"></div><input type="text" id="aSearch" placeholder="Search name" style="max-width:260px" aria-label="Search"></div>
+    <div class="scroll"><table id="aTable"></table></div>
+    <p class="muted small" id="aMsg" style="margin-top:8px"></p>
+  </div>
+  <div id="adminEdit" class="hide"></div>
+</div>
+
+<script>
+/* ============ SETTINGS: paste your Apps Script web app URL between the quotes ============ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmHCjIKdegk4e2lDopY3n9VliO8tTW-W-2iA_RzmSGGb1PqD8gUbptuVxBCtrbN0eOew/exec';
+/* ======================================================================================= */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = { get(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} }, del(k){ try { sessionStorage.removeItem(k); } catch(e){} } };
+const S = { sitePw:'', name:'', code:'', cfg:{}, members:[], adminPw:'', units:[] };
+const DEMO = !API_URL;
+
+async function api(body){
+  if (DEMO) return demoApi(body);
+  const r = await fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  return r.json();
+}
+async function run(btn, errEl, fn){
+  btn.disabled = true; if (errEl) errEl.textContent = '';
+  try { await fn(); } catch(e){ if (errEl) errEl.textContent = 'Could not reach the server. Check your connection and try again.'; }
+  btn.disabled = false;
+}
+function show(v){ ['gate','login','app','admin'].forEach(k => $('v-' + k).classList.toggle('hide', k !== v)); window.scrollTo(0, 0); }
+function setHeader(){ if (S.cfg.couple){ $('title').textContent = S.cfg.couple; $('subtitle').textContent = [S.cfg.wedding_date, 'Shenzhen'].filter(Boolean).join(' · '); document.title = S.cfg.couple + ' · Wedding'; } }
+
+/* ---------- gate and login ---------- */
+$('gateForm').addEventListener('submit', e => { e.preventDefault(); run($('gateBtn'), $('gateErr'), async () => {
+  const pw = $('sitePw').value.trim(), r = await api({ action:'gate', site_password: pw });
+  if (!r.ok) { $('gateErr').textContent = r.error; return; }
+  S.sitePw = pw; S.cfg = r.config; store.set('w_site', pw); setHeader(); show('login'); $('gName').focus();
+}); });
+$('loginForm').addEventListener('submit', e => { e.preventDefault(); run($('loginBtn'), $('loginErr'), async () => {
+  const ok = await login($('gName').value.trim(), $('gCode').value.trim());
+  if (ok !== true) $('loginErr').textContent = ok;
+}); });
+async function login(name, code){
+  const r = await api({ action:'login', site_password: S.sitePw, name, code });
+  if (!r.ok) return r.error;
+  Object.assign(S, { name, code, cfg: r.config, members: r.members });
+  store.set('w_name', name); store.set('w_code', code); setHeader(); openApp(); return true;
+}
+$('logout').addEventListener('click', () => { ['w_site','w_name','w_code'].forEach(store.del); location.hash = ''; location.reload(); });
+
+/* ---------- guest app ---------- */
+const TABS = [['reply','Your reply'],['day','Your schedule'],['bus','The bus'],['travel','Visa and travel']];
+function openApp(){
+  $('tabs').innerHTML = TABS.map(([k,l]) => `<button type="button" role="tab" data-k="${k}">${l}</button>`).join('');
+  drawReply($('t-reply'), S.members, saveGuest, false); drawDay(); drawBus(); tab('reply'); show('app');
+}
+function tab(k){ TABS.forEach(([x]) => $('t-' + x).classList.toggle('hide', x !== k)); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); }
+$('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ tab(b.dataset.k); window.scrollTo(0, 0); } });
+
+const hasEarlyStay = m => m.stays.some(s => !/^2 Jan/.test(s.check_in));
+const radios = (name, opts, val) => `<div class="opts">` + opts.map(([v,l]) => `<label><input type="radio" name="${name}" value="${esc(v)}" ${val === v ? 'checked' : ''}>${esc(l)}</label>`).join('') + `</div>`;
+
+function drawReply(root, members, onSave, isAdmin){
+  const c = S.cfg, first = members[0], anyAnswered = members.some(m => m.answers && m.answers.updated_at);
+  let h = `<div class="card"><h2>${isAdmin ? 'Answering for ' + esc(members.map(m => m.name).join(', ')) : 'Hello ' + esc(members.map(m => m.name.split(' ')[0]).join(' and '))}</h2>
+    <p>${members.length > 1 ? 'This page covers everyone in your group. One of you can answer for all.' : 'Here is everything we need from you.'} Please reply by <b>${esc(c.deadline)}</b>. You can come back and change your answers until then.</p>
+    ${anyAnswered ? '<span class="tag done">Reply received</span>' : '<span class="tag">Reply needed</span>'}</div>`;
+  members.forEach(m => {
+    const a = m.answers || {}, id = m.id;
+    h += `<div class="card person" data-person="${id}"><h2>${esc(m.name)}</h2>`;
+    if (m.boat) h += `<div class="q"><span class="tag plain">${esc(c.boat_date)}</span><h3>New Year's Eve boat party, Victoria Harbour</h3>
+      <p>We would love you on board. The boat leaves at ${esc(c.boat_time)}. Pier: ${esc(c.boat_pier)}.</p><p><b>Will you join the boat party?</b></p>${radios('boat_' + id, [['yes','Yes, count me in'],['no','No, I cannot make it']], a.boat)}
+      <div data-show="boat" class="${a.boat === 'yes' ? '' : 'hide'}"><p style="margin-top:12px"><b>Would you be interested in dinner together before boarding?</b> <span class="muted">Just to gauge interest.</span></p>${radios('boat_dinner_' + id, [['yes','Yes'],['no','No']], a.boat_dinner)}</div></div>`;
+    if (m.ceremony) h += `<div class="q"><span class="tag plain">${esc(c.wedding_date)}</span><h3>Ceremony at ${esc(c.ceremony_time)}</h3>
+      <p>You are invited to our ceremony at ${esc(c.ceremony_place)}, before the banquet.</p>
+      <div class="notice"><b>There is no shuttle from Hong Kong in time for the ceremony.</b> The bus only arrives for the banquet. If you join the ceremony you will need to make your own way to Shenzhen.</div>
+      <p><b>Will you join the ceremony?</b></p>${radios('ceremony_' + id, [['yes','Yes, I will make my own way'],['no','No, banquet only']], a.ceremony)}</div>`;
+    if (m.stays.length) {
+      const self = m.stays.map(s => s.self_fund_nights).filter(Boolean).join(', ');
+      h += `<div class="q"><h3>Your hotel room</h3><p>We have reserved a room for you. Please check the details.</p>` + m.stays.map(s => `<dl class="kv"><dt>Hotel</dt><dd>${esc(/SAVHE/.test(s.hotel) ? c.hotel2_name : c.venue_name)}</dd><dt>Check in</dt><dd>${esc(s.check_in)}</dd><dt>Check out</dt><dd>${esc(s.check_out)} (${esc(s.nights)} night${s.nights == 1 ? '' : 's'})</dd><dt>Room</dt><dd>${esc(s.room_type)}</dd><dt>Sharing with</dt><dd>${esc(s.sharing_with || 'Nobody, the room is yours')}</dd>${s.self_fund_nights ? `<dt>At your cost</dt><dd>Night${/,/.test(s.self_fund_nights) ? 's' : ''} of ${esc(s.self_fund_nights)}</dd>` : ''}</dl>`).join('<hr style="border:0;border-top:1px dashed var(--line)">') +
+        (m.stays.some(s => /SAVHE/.test(s.hotel)) ? `<p class="muted small">${esc(c.hotel2_address)}. ${esc(c.hotel2_checkin)}</p>` : '') +
+        `<p><b>Is this right, and do you still want the room?</b></p>${radios('room_' + id, [['keep','Yes, keep my room'],['release','No, I do not need it']], a.room)}
+        <div data-show="room" class="${a.room === 'keep' ? '' : 'hide'}">
+          <label class="f" for="legal_${id}">Full legal name, exactly as on the ID or passport you will travel with</label><input type="text" id="legal_${id}" value="${esc(a.legal_name)}" autocomplete="off"><p class="muted small">The hotel needs this to check you in.</p>
+          ${self ? `<div class="note">The night${/,/.test(self) ? 's' : ''} of <b>${esc(self)}</b> ${/,/.test(self) ? 'are' : 'is'} at your own cost. We will confirm the amount and how to settle it later.</div><div class="opts"><label><input type="checkbox" id="self_${id}" ${a.self_fund_ok === 'yes' ? 'checked' : ''}>I am happy to cover ${/,/.test(self) ? 'those nights' : 'that night'}</label></div>` : ''}
+        </div></div>`;
+    }
+    h += `<div class="q"><h3>Bus between Hong Kong and Shenzhen</h3><p class="muted small">Free coach for the banquet. Details are on the bus tab.</p>
+      <div data-bus="up"><p><b>Bus up to Shenzhen</b>, leaving ${esc(c.bus_up_time)}</p>${radios('bus_up_' + id, [['none','No thanks'],['Kowloon Tong','From Kowloon Tong'],['Admiralty','From Admiralty']], a.bus_up)}</div>
+      <p data-busnote="up" class="muted hide"></p>
+      <div data-bus="back" style="margin-top:12px"><p><b>Bus back to Hong Kong</b>, leaving ${esc(c.bus_back_time)}</p>${radios('bus_back_' + id, [['none','No thanks'],['Kowloon Tong','To Kowloon Tong'],['Admiralty','To Admiralty']], a.bus_back)}</div>
+      <p data-busnote="back" class="muted hide"></p></div></div>`;
+  });
+  h += `<div class="card"><label class="f" for="unitNote" style="margin-top:0">Anything else we should know? (optional)</label><textarea id="unitNote">${esc((first.answers || {}).note)}</textarea>
+    <div class="err" id="saveErr" role="alert"></div><div class="bar"><button class="btn" id="saveBtn" type="button">${anyAnswered ? 'Update my reply' : 'Send my reply'}</button>${isAdmin ? '<button class="btn ghost" id="cancelEdit" type="button">Back to list</button>' : ''}</div><div id="savedMsg"></div></div>`;
+  root.innerHTML = h;
+
+  const val = (card, n) => { const r = card.querySelector(`input[name="${n}_${card.dataset.person}"]:checked`); return r ? r.value : ''; };
+  function sync(){
+    root.querySelectorAll('.person').forEach(card => {
+      const m = members.find(x => x.id === card.dataset.person), room = val(card, 'room'), cer = val(card, 'ceremony');
+      const b = card.querySelector('[data-show="boat"]'); if (b) b.classList.toggle('hide', val(card, 'boat') !== 'yes');
+      const r = card.querySelector('[data-show="room"]'); if (r) r.classList.toggle('hide', room !== 'keep');
+      const keep = m.stays.length && room === 'keep';
+      const upOff = cer === 'yes' ? 'You are joining the ceremony, so the bus up is too late for you. Please make your own way.' : (keep && hasEarlyStay(m)) ? 'You are already in Shenzhen the night before, so no bus up is needed.' : '';
+      const backOff = keep ? 'You are staying the night of the wedding, so no bus back is needed.' : '';
+      [['up', upOff], ['back', backOff]].forEach(([k, off]) => { card.querySelector(`[data-bus="${k}"]`).classList.toggle('hide', !!off); const n = card.querySelector(`[data-busnote="${k}"]`); n.textContent = off; n.classList.toggle('hide', !off); });
+    });
+  }
+  root.addEventListener('change', sync); sync();
+
+  $('saveBtn').addEventListener('click', () => {
+    const answers = {}, missing = [];
+    root.querySelectorAll('.person').forEach((card, i) => {
+      const m = members.find(x => x.id === card.dataset.person), id = m.id, a = {}, need = (k, label) => { if (!a[k]) missing.push(m.name + ': ' + label); };
+      if (m.boat) { a.boat = val(card, 'boat'); need('boat', 'boat party'); a.boat_dinner = a.boat === 'yes' ? val(card, 'boat_dinner') : ''; if (a.boat === 'yes') need('boat_dinner', 'dinner before the boat'); }
+      if (m.ceremony) { a.ceremony = val(card, 'ceremony'); need('ceremony', 'ceremony'); }
+      if (m.stays.length) { a.room = val(card, 'room'); need('room', 'hotel room');
+        if (a.room === 'keep') { a.legal_name = $('legal_' + id).value.trim(); need('legal_name', 'full legal name'); const s = $('self_' + id); if (s) { a.self_fund_ok = s.checked ? 'yes' : ''; need('self_fund_ok', 'tick to accept the self-funded night'); } } }
+      const upVisible = !card.querySelector('[data-bus="up"]').classList.contains('hide'), backVisible = !card.querySelector('[data-bus="back"]').classList.contains('hide');
+      a.bus_up = upVisible ? val(card, 'bus_up') : 'none'; if (upVisible) need('bus_up', 'bus up');
+      a.bus_back = backVisible ? val(card, 'bus_back') : 'none'; if (backVisible) need('bus_back', 'bus back');
+      a.note = i === 0 ? $('unitNote').value.trim() : '';
+      answers[id] = a;
+    });
+    if (missing.length && !isAdmin) { $('saveErr').textContent = 'Still to answer: ' + missing.join('; '); return; }
+    run($('saveBtn'), $('saveErr'), async () => { const r = await onSave(answers); if (r !== true) $('saveErr').textContent = r; });
+  });
+  if (isAdmin) $('cancelEdit').addEventListener('click', () => { $('adminEdit').classList.add('hide'); $('adminBody').classList.remove('hide'); });
+}
+async function saveGuest(answers){
+  const r = await api({ action:'save', site_password: S.sitePw, name: S.name, code: S.code, answers });
+  if (!r.ok) return r.error;
+  S.members = r.members; drawReply($('t-reply'), S.members, saveGuest, false); drawDay();
+  $('savedMsg').innerHTML = `<div class="saved">Thank you, your reply is saved. You can change it until ${esc(S.cfg.deadline)}.</div>`; return true;
+}
+
+function drawDay(){
+  const c = S.cfg, ms = S.members, who = f => { const n = ms.filter(f).map(m => m.name.split(' ')[0]); return n.length === ms.length || !n.length ? '' : ` <span class="muted small">(${esc(n.join(', '))})</span>`; };
+  const item = (t, title, body) => `<li><time>${esc(t)}</time><div><b>${title}</b>${body}</div></li>`;
+  const ansNote = (k, m) => { const a = (m.answers || {})[k]; return a === 'yes' ? 'coming' : a === 'no' ? 'not coming' : 'reply needed'; };
+  let h = '';
+  if (ms.some(m => m.boat)) h += `<div class="card"><span class="tag plain">${esc(c.boat_date)}</span><h2>New Year's Eve in Hong Kong</h2><ul class="tl">${item(c.boat_time, 'Boat party, Victoria Harbour' + who(m => m.boat), `<span class="muted">Pier: ${esc(c.boat_pier)}. ${esc(ms.filter(m => m.boat).map(m => m.name.split(' ')[0] + ': ' + ansNote('boat', m)).join(' · '))}</span>`)}</ul></div>`;
+  h += `<div class="card"><span class="tag plain">${esc(c.wedding_date)}</span><h2>The wedding day</h2><p>${esc(c.venue_name)}<br><span class="muted">${esc(c.venue_address)}</span></p><ul class="tl">` +
+    (ms.some(m => m.ceremony) ? item(c.ceremony_time, 'Ceremony' + who(m => m.ceremony), `<span class="muted">${esc(c.ceremony_place)}. Make your own way, no shuttle arrives in time. ${esc(ms.filter(m => m.ceremony).map(m => m.name.split(' ')[0] + ': ' + ansNote('ceremony', m)).join(' · '))}</span>`) : '') +
+    item(c.reception_time, 'Reception', `<span class="muted">${esc(c.banquet_place)}</span>`) + item(c.banquet_time, 'Wedding banquet', `<span class="muted">${esc(c.banquet_place)}</span>`) +
+    item(c.afterparty_time, 'After party', `<span class="muted">${esc(c.afterparty_place)}</span>`) + item('11:00 pm', 'After-after party', `<span class="muted">Details to follow</span>`) + `</ul></div>`;
+  const stays = ms.filter(m => m.stays.length && (m.answers || {}).room !== 'release');
+  if (stays.length) h += `<div class="card"><h2>Where you are staying</h2>` + stays.map(m => m.stays.map(s => `<p><b>${esc(m.name)}</b>: ${esc(/SAVHE/.test(s.hotel) ? c.hotel2_name : c.venue_name)}, ${esc(s.check_in)} to ${esc(s.check_out)}</p>`).join('')).join('') + `</div>`;
+  $('t-day').innerHTML = h;
+}
+function drawBus(){
+  const c = S.cfg;
+  $('t-bus').innerHTML = `<div class="card"><h2>Free coach for the banquet</h2><p>We are running coaches between Hong Kong and the hotel on the wedding day. Tell us on the reply tab whether you want a seat.</p>
+    <ul class="tl"><li><time>${esc(c.bus_up_time)}</time><div><b>Hong Kong to Shenzhen</b><span class="muted">Pick-up at ${esc(c.bus_stop_adm)} or ${esc(c.bus_stop_kt)}. Arrives in time for the reception.</span></div></li>
+    <li><time>${esc(c.bus_back_time)}</time><div><b>Shenzhen to Hong Kong</b><span class="muted">From the hotel, dropping at Kowloon Tong and Admiralty. About an hour to Admiralty.</span></div></li></ul>
+    <div class="notice"><b>The coach does not arrive in time for the ${esc(c.ceremony_time)} ceremony.</b> Ceremony guests travel up on their own.</div>
+    <h3>At the border</h3><p>Both directions cross at Huanggang Port. Everyone gets off with their belongings, clears immigration, and reboards. Bring the same documents you would need to enter mainland China on your own. See the visa and travel tab.</p>
+    <p class="muted small">Exact times and pick-up instructions will be confirmed closer to the day.</p></div>`;
+}
+
+/* ---------- admin ---------- */
+let aFilter = 'all';
+const answered = m => !!(m.answers && m.answers.updated_at);
+const unitState = u => { const n = u.members.filter(answered).length; return n === 0 ? 'waiting' : n === u.members.length ? 'replied' : 'partial'; };
+$('adminForm').addEventListener('submit', e => { e.preventDefault(); run($('adminBtn'), $('adminErr'), async () => { S.adminPw = $('adminPw').value; const ok = await loadAdmin(); if (ok !== true) $('adminErr').textContent = ok; }); });
+$('adminRefresh').addEventListener('click', () => run($('adminRefresh'), $('aMsg'), loadAdmin));
+async function loadAdmin(){
+  const r = await api({ action:'admin', admin_password: S.adminPw }); if (!r.ok) return r.error;
+  S.cfg = r.config; S.units = r.units; $('adminForm').classList.add('hide'); $('adminBody').classList.remove('hide'); drawAdmin(); return true;
+}
+function summary(m){
+  const a = m.answers; if (!answered(m)) return '<span class="tag">Waiting</span>';
+  const bits = [];
+  if (m.boat) bits.push('Boat: ' + (a.boat || '?') + (a.boat === 'yes' ? ', dinner ' + (a.boat_dinner || '?') : ''));
+  if (m.ceremony) bits.push('Ceremony: ' + (a.ceremony || '?'));
+  if (m.stays.length) bits.push('Room: ' + (a.room || '?') + (a.room === 'keep' ? ' · ' + (a.legal_name || 'NO LEGAL NAME') : '') + (m.stays.some(s => s.self_fund_nights) && a.room === 'keep' ? ' · self-fund ' + (a.self_fund_ok === 'yes' ? 'accepted' : 'NOT accepted') : ''));
+  bits.push('Bus up: ' + (a.bus_up || '?') + ' · back: ' + (a.bus_back || '?'));
+  if (a.note) bits.push('Note: ' + a.note);
+  return bits.map(esc).join('<br>');
+}
+function drawAdmin(){
+  const U = S.units, M = U.flatMap(u => u.members), cnt = f => M.filter(f).length, A = m => m.answers || {};
+  const t = (n, l) => `<div class="tile"><b>${n}</b><span>${l}</span></div>`;
+  $('aTiles').innerHTML = t(U.filter(u => unitState(u) === 'replied').length + ' / ' + U.length, 'groups replied') +
+    t(cnt(m => m.boat && A(m).boat === 'yes') + ' yes · ' + cnt(m => m.boat && A(m).boat === 'no') + ' no', 'boat party, of ' + cnt(m => m.boat) + ' invited') +
+    t(cnt(m => A(m).boat_dinner === 'yes'), 'interested in dinner before the boat') +
+    t(cnt(m => m.ceremony && A(m).ceremony === 'yes') + ' yes · ' + cnt(m => m.ceremony && A(m).ceremony === 'no') + ' no', 'ceremony, of ' + cnt(m => m.ceremony) + ' invited') +
+    t(cnt(m => A(m).room === 'keep') + ' keep · ' + cnt(m => A(m).room === 'release') + ' release', 'hotel rooms, of ' + cnt(m => m.stays.length) + ' guests') +
+    t(cnt(m => A(m).bus_up === 'Kowloon Tong') + ' KT · ' + cnt(m => A(m).bus_up === 'Admiralty') + ' ADM', 'bus up seats') +
+    t(cnt(m => A(m).bus_back === 'Kowloon Tong') + ' KT · ' + cnt(m => A(m).bus_back === 'Admiralty') + ' ADM', 'bus back seats');
+  const F = { all:['All', u => true], waiting:['Waiting', u => unitState(u) !== 'replied'], replied:['Replied', u => unitState(u) === 'replied'], boat:['Boat invitees', u => u.members.some(m => m.boat)], cer:['Ceremony invitees', u => u.members.some(m => m.ceremony)], room:['Hotel guests', u => u.members.some(m => m.stays.length)], release:['Released a room', u => u.members.some(m => A(m).room === 'release')] };
+  $('aChips').innerHTML = Object.entries(F).map(([k,[l,f]]) => `<button type="button" data-k="${k}" class="${aFilter === k ? 'on' : ''}">${l} ${U.filter(f).length}</button>`).join('');
+  const q = $('aSearch').value.trim().toLowerCase();
+  const list = U.filter(F[aFilter][1]).filter(u => !q || u.members.some(m => m.name.toLowerCase().includes(q)));
+  $('aTable').innerHTML = '<thead><tr><th>Group</th><th>Code</th><th>Guest</th><th>Reply</th><th>Last change</th><th></th></tr></thead><tbody>' + list.map(u => u.members.map((m, i) =>
+    `<tr>${i === 0 ? `<td rowspan="${u.members.length}"><b>${esc(u.unit)}</b><div class="muted small">${esc(u.group)}</div></td><td rowspan="${u.members.length}"><code>${esc(u.code)}</code></td>` : ''}
+     <td><b>${esc(m.name)}</b><div class="muted small">${[m.boat ? 'Boat' : '', m.ceremony ? 'Ceremony' : '', m.stays.length ? 'Hotel' : ''].filter(Boolean).join(' · ') || 'Banquet'}</div></td><td class="small">${summary(m)}</td><td class="small muted">${answered(m) ? esc(String(m.answers.updated_at).slice(0, 16)) + '<br>by ' + esc(m.answers.updated_by) : ''}</td>
+     ${i === 0 ? `<td rowspan="${u.members.length}"><div style="display:flex;flex-direction:column;gap:6px"><button class="btn sm" data-copy="${esc(u.unit)}" type="button">Copy invite</button><button class="btn ghost sm" data-edit="${esc(u.unit)}" type="button">Answer for them</button></div></td>` : ''}</tr>`).join('')).join('') + '</tbody>';
+}
+function inviteText(u){
+  const c = S.cfg, ms = u.members, asks = [];
+  if (ms.some(m => m.boat)) asks.push('RSVP for the New Year\'s Eve boat party');
+  if (ms.some(m => m.ceremony)) asks.push('tell us if you will join the ceremony');
+  if (ms.some(m => m.stays.length)) asks.push('confirm your hotel room');
+  asks.push('let us know about the bus');
+  const join = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0];
+  const url = c.site_url || location.origin + location.pathname;
+  const names = ms.map(m => /[一-鿿]/.test(m.name) ? m.name : m.name.split(' ')[0]);
+  const rep = { names: join(names), url, site_password: c.site_password, login_names: ms.map(m => m.name).join(' or '), code: u.code, asks: join(asks), deadline: c.deadline };
+  return String(c.invite_message || '').replace(/\\n/g, '\n').replace(/\{(\w+)\}/g, (x, k) => rep[k] ?? x);
+}
+async function copyText(text){
+  try { await navigator.clipboard.writeText(text); return true; } catch(e){}
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch(e){} ta.remove(); return ok;
+}
+$('aChips').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ aFilter = b.dataset.k; drawAdmin(); } });
+$('aSearch').addEventListener('input', drawAdmin);
+$('aTable').addEventListener('click', async e => {
+  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]');
+  if (c) { const u = S.units.find(x => x.unit === c.dataset.copy), text = inviteText(u), ok = await copyText(text); c.textContent = ok ? 'Copied' : 'Copy failed'; $('aMsg').textContent = ok ? 'Copied to clipboard:\n' + text : 'Your browser blocked the clipboard. Text: ' + text; $('aMsg').style.whiteSpace = 'pre-wrap'; setTimeout(() => c.textContent = 'Copy invite', 1500); }
+  if (ed) { const u = S.units.find(x => x.unit === ed.dataset.edit); $('adminBody').classList.add('hide'); $('adminEdit').classList.remove('hide');
+    drawReply($('adminEdit'), u.members, async answers => { const r = await api({ action:'adminSave', admin_password: S.adminPw, unit: u.unit, answers }); if (!r.ok) return r.error; S.units = r.units; $('adminEdit').classList.add('hide'); $('adminBody').classList.remove('hide'); drawAdmin(); return true; }, true); window.scrollTo(0, 0); }
+});
+
+/* ---------- start ---------- */
+async function start(){
+  if (DEMO) { $('demoBar').classList.remove('hide'); $('demoBar').innerHTML = 'Preview with made-up guests. Site password: <b>demo</b> · Name: <b>Robin Vale</b> · Code: <b>DEMO01</b> · <a href="#admin">Organiser view</a> (password <b>admin</b>) · <a href="#guest">Guest view</a>'; }
+  if (location.hash === '#admin') { $('title').textContent = 'Organiser'; $('subtitle').textContent = 'Replies and invitations'; show('admin'); return; }
+  const pw = store.get('w_site'), n = store.get('w_name'), c = store.get('w_code');
+  if (pw) { try { const r = await api({ action:'gate', site_password: pw }); if (r.ok) { S.sitePw = pw; S.cfg = r.config; setHeader(); if (n && c && await login(n, c) === true) return; show('login'); return; } } catch(e){} }
+  show('gate');
+}
+addEventListener('hashchange', start);
+
+/* ---------- preview data (only used while API_URL is empty; delete freely) ---------- */
+const demoDB = { cfg: { site_password:'demo', admin_password:'admin', site_url:'', couple:'Sam & Alex', deadline:'1 December 2026', locked:'no', wedding_date:'Saturday 2 January 2027', venue_name:'The Example Hotel', venue_address:'1 Sample Road, Shenzhen', ceremony_time:'3:30 pm', ceremony_place:'Garden Pavilion', reception_time:'5:30 pm', banquet_time:'6:00 pm', banquet_place:'Ballroom', afterparty_time:'8:30 pm to 11:00 pm', afterparty_place:'Garden Pavilion', hotel2_name:'Second Example Hotel', hotel2_address:'9 Sample Avenue. Metro: Sample', hotel2_checkin:'Check-in from 3 pm, check-out 12 noon.', boat_date:'Thursday 31 December 2026', boat_time:'9:00 pm', boat_pier:'to be confirmed', bus_up_time:'around 3:45 pm', bus_back_time:'around 9:15 to 9:30 pm', bus_stop_adm:'Admiralty MTR, Exit A', bus_stop_kt:'Kowloon Tong MTR station', invite_message:'Hi {names}! Our wedding guest site is live: {url}\nSite password: {site_password}\nYour name on the site: {login_names}\nYour personal code: {code}\nIt shows your own schedule and asks you to {asks}. Please reply by {deadline}.\nLooking forward to having you with us!' },
+  units: [
+    { unit:'U001', code:'DEMO01', group:'University friends', via:'', members:[
+      { id:'P1', name:'Robin Vale', boat:true, ceremony:true, stays:[{ hotel:'SAVHE', check_in:'1 Jan 2027', check_out:'3 Jan 2027', nights:2, room_type:'Double', sharing_with:'Jamie Vale', self_fund_nights:'1 Jan' }], answers:null },
+      { id:'P2', name:'Jamie Vale', boat:true, ceremony:true, stays:[{ hotel:'SAVHE', check_in:'1 Jan 2027', check_out:'3 Jan 2027', nights:2, room_type:'Double', sharing_with:'Robin Vale', self_fund_nights:'1 Jan' }], answers:null } ] },
+    { unit:'U002', code:'DEMO02', group:'School friends', via:'', members:[ { id:'P3', name:'Mina Okafor', boat:false, ceremony:true, stays:[{ hotel:'SAVHE', check_in:'2 Jan 2027', check_out:'3 Jan 2027', nights:1, room_type:'Twin', sharing_with:'Theo Lindqvist', self_fund_nights:'' }], answers:null } ] },
+    { unit:'U003', code:'DEMO03', group:'Work friends', via:'', members:[ { id:'P4', name:'Theo Lindqvist', boat:false, ceremony:false, stays:[], answers:{ bus_up:'Admiralty', bus_back:'Admiralty', note:'', updated_at:'2026-11-26 10:15', updated_by:'Theo Lindqvist' } } ] } ] };
+function demoApi(b){
+  const pub = Object.fromEntries(Object.entries(demoDB.cfg).filter(([k]) => !['site_password','admin_password','invite_message'].includes(k))), n = s => String(s || '').toLowerCase().replace(/\s/g, '');
+  const put = (u, answers, who) => u.members.forEach(m => { if (answers[m.id]) m.answers = Object.assign({}, answers[m.id], { updated_at: new Date().toISOString().slice(0, 16).replace('T', ' '), updated_by: who }); });
+  if (b.action === 'admin' || b.action === 'adminSave') { if (b.admin_password !== demoDB.cfg.admin_password) return { ok:false, error:'Wrong admin password.' }; if (b.action === 'adminSave') put(demoDB.units.find(u => u.unit === b.unit), b.answers, 'admin'); return { ok:true, config: demoDB.cfg, units: JSON.parse(JSON.stringify(demoDB.units)) }; }
+  if (n(b.site_password) !== 'demo') return { ok:false, error:'That site password is not right.' };
+  if (b.action === 'gate') return { ok:true, config: pub };
+  const u = demoDB.units.find(u => u.members.some(m => n(m.name) === n(b.name)));
+  if (!u || n(u.code) !== n(b.code)) return { ok:false, error:'We could not match that name and code. Use the name exactly as it appears in your invitation message.' };
+  if (b.action === 'save') put(u, b.answers, b.name);
+  return { ok:true, config: pub, unit: u.unit, members: JSON.parse(JSON.stringify(u.members)) };
+}
+start();
+</script>
+</body>
+</html>
